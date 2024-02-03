@@ -3,19 +3,19 @@ from cog import BasePredictor, Input, Path
 import sys
 sys.path.append('/content/AnimateLCM-hf')
 
-commands = [
-    'aria2c --console-log-level=error -c -x 16 -s 16 -k 1M https://huggingface.co/spaces/wangfuyun/AnimateLCM/resolve/main/models/DreamBooth_LoRA/cartoon3d.safetensors -d /content/AnimateLCM-hf/models/DreamBooth_LoRA -o cartoon3d.safetensors',
-    'aria2c --console-log-level=error -c -x 16 -s 16 -k 1M https://huggingface.co/spaces/wangfuyun/AnimateLCM/resolve/main/models/DreamBooth_LoRA/realistic1.safetensors -d /content/AnimateLCM-hf/models/DreamBooth_LoRA -o realistic1.safetensors',
-    'aria2c --console-log-level=error -c -x 16 -s 16 -k 1M https://huggingface.co/spaces/wangfuyun/AnimateLCM/resolve/main/models/DreamBooth_LoRA/realistic2.safetensors -d /content/AnimateLCM-hf/models/DreamBooth_LoRA -o realistic2.safetensors',
-    'aria2c --console-log-level=error -c -x 16 -s 16 -k 1M https://huggingface.co/spaces/wangfuyun/AnimateLCM/resolve/main/models/LCM_LoRA/sd15_t2v_beta_lora.safetensors -d /content/AnimateLCM-hf/models/LCM_LoRA -o sd15_t2v_beta_lora.safetensors',
-    'aria2c --console-log-level=error -c -x 16 -s 16 -k 1M https://huggingface.co/spaces/wangfuyun/AnimateLCM/resolve/main/models/Motion_Module/sd15_t2v_beta_motion.ckpt -d /content/AnimateLCM-hf/models/Motion_Module -o sd15_t2v_beta_motion.ckpt',
-    'aria2c --console-log-level=error -c -x 16 -s 16 -k 1M https://huggingface.co/spaces/wangfuyun/AnimateLCM/resolve/main/models/StableDiffusion/stable-diffusion-v1-5/text_encoder/model.safetensors -d /content/AnimateLCM-hf/models/StableDiffusion/stable-diffusion-v1-5/text_encoder -o model.safetensors',
-    'aria2c --console-log-level=error -c -x 16 -s 16 -k 1M https://huggingface.co/spaces/wangfuyun/AnimateLCM/resolve/main/models/StableDiffusion/stable-diffusion-v1-5/unet/diffusion_pytorch_model.bin -d /content/AnimateLCM-hf/models/StableDiffusion/stable-diffusion-v1-5/unet -o diffusion_pytorch_model.bin',
-    'aria2c --console-log-level=error -c -x 16 -s 16 -k 1M https://huggingface.co/spaces/wangfuyun/AnimateLCM/resolve/main/models/StableDiffusion/stable-diffusion-v1-5/vae/diffusion_pytorch_model.bin -d /content/AnimateLCM-hf/models/StableDiffusion/stable-diffusion-v1-5/vae -o diffusion_pytorch_model.bin'
-]
+# commands = [
+#     'aria2c --console-log-level=error -c -x 16 -s 16 -k 1M https://huggingface.co/spaces/wangfuyun/AnimateLCM/resolve/main/models/DreamBooth_LoRA/cartoon3d.safetensors -d /content/AnimateLCM-hf/models/DreamBooth_LoRA -o cartoon3d.safetensors',
+#     'aria2c --console-log-level=error -c -x 16 -s 16 -k 1M https://huggingface.co/spaces/wangfuyun/AnimateLCM/resolve/main/models/DreamBooth_LoRA/realistic1.safetensors -d /content/AnimateLCM-hf/models/DreamBooth_LoRA -o realistic1.safetensors',
+#     'aria2c --console-log-level=error -c -x 16 -s 16 -k 1M https://huggingface.co/spaces/wangfuyun/AnimateLCM/resolve/main/models/DreamBooth_LoRA/realistic2.safetensors -d /content/AnimateLCM-hf/models/DreamBooth_LoRA -o realistic2.safetensors',
+#     'aria2c --console-log-level=error -c -x 16 -s 16 -k 1M https://huggingface.co/spaces/wangfuyun/AnimateLCM/resolve/main/models/LCM_LoRA/sd15_t2v_beta_lora.safetensors -d /content/AnimateLCM-hf/models/LCM_LoRA -o sd15_t2v_beta_lora.safetensors',
+#     'aria2c --console-log-level=error -c -x 16 -s 16 -k 1M https://huggingface.co/spaces/wangfuyun/AnimateLCM/resolve/main/models/Motion_Module/sd15_t2v_beta_motion.ckpt -d /content/AnimateLCM-hf/models/Motion_Module -o sd15_t2v_beta_motion.ckpt',
+#     'aria2c --console-log-level=error -c -x 16 -s 16 -k 1M https://huggingface.co/spaces/wangfuyun/AnimateLCM/resolve/main/models/StableDiffusion/stable-diffusion-v1-5/text_encoder/model.safetensors -d /content/AnimateLCM-hf/models/StableDiffusion/stable-diffusion-v1-5/text_encoder -o model.safetensors',
+#     'aria2c --console-log-level=error -c -x 16 -s 16 -k 1M https://huggingface.co/spaces/wangfuyun/AnimateLCM/resolve/main/models/StableDiffusion/stable-diffusion-v1-5/unet/diffusion_pytorch_model.bin -d /content/AnimateLCM-hf/models/StableDiffusion/stable-diffusion-v1-5/unet -o diffusion_pytorch_model.bin',
+#     'aria2c --console-log-level=error -c -x 16 -s 16 -k 1M https://huggingface.co/spaces/wangfuyun/AnimateLCM/resolve/main/models/StableDiffusion/stable-diffusion-v1-5/vae/diffusion_pytorch_model.bin -d /content/AnimateLCM-hf/models/StableDiffusion/stable-diffusion-v1-5/vae -o diffusion_pytorch_model.bin'
+# ]
 
-for command in commands:
-    os.system(command)
+# for command in commands:
+#     os.system(command)
 
 import json
 import torch
