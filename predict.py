@@ -3,20 +3,6 @@ from cog import BasePredictor, Input, Path
 import sys
 sys.path.append('/content/AnimateLCM-hf')
 
-# commands = [
-#     'aria2c --console-log-level=error -c -x 16 -s 16 -k 1M https://huggingface.co/spaces/wangfuyun/AnimateLCM/resolve/main/models/DreamBooth_LoRA/cartoon3d.safetensors -d /content/AnimateLCM-hf/models/DreamBooth_LoRA -o cartoon3d.safetensors',
-#     'aria2c --console-log-level=error -c -x 16 -s 16 -k 1M https://huggingface.co/spaces/wangfuyun/AnimateLCM/resolve/main/models/DreamBooth_LoRA/realistic1.safetensors -d /content/AnimateLCM-hf/models/DreamBooth_LoRA -o realistic1.safetensors',
-#     'aria2c --console-log-level=error -c -x 16 -s 16 -k 1M https://huggingface.co/spaces/wangfuyun/AnimateLCM/resolve/main/models/DreamBooth_LoRA/realistic2.safetensors -d /content/AnimateLCM-hf/models/DreamBooth_LoRA -o realistic2.safetensors',
-#     'aria2c --console-log-level=error -c -x 16 -s 16 -k 1M https://huggingface.co/spaces/wangfuyun/AnimateLCM/resolve/main/models/LCM_LoRA/sd15_t2v_beta_lora.safetensors -d /content/AnimateLCM-hf/models/LCM_LoRA -o sd15_t2v_beta_lora.safetensors',
-#     'aria2c --console-log-level=error -c -x 16 -s 16 -k 1M https://huggingface.co/spaces/wangfuyun/AnimateLCM/resolve/main/models/Motion_Module/sd15_t2v_beta_motion.ckpt -d /content/AnimateLCM-hf/models/Motion_Module -o sd15_t2v_beta_motion.ckpt',
-#     'aria2c --console-log-level=error -c -x 16 -s 16 -k 1M https://huggingface.co/spaces/wangfuyun/AnimateLCM/resolve/main/models/StableDiffusion/stable-diffusion-v1-5/text_encoder/model.safetensors -d /content/AnimateLCM-hf/models/StableDiffusion/stable-diffusion-v1-5/text_encoder -o model.safetensors',
-#     'aria2c --console-log-level=error -c -x 16 -s 16 -k 1M https://huggingface.co/spaces/wangfuyun/AnimateLCM/resolve/main/models/StableDiffusion/stable-diffusion-v1-5/unet/diffusion_pytorch_model.bin -d /content/AnimateLCM-hf/models/StableDiffusion/stable-diffusion-v1-5/unet -o diffusion_pytorch_model.bin',
-#     'aria2c --console-log-level=error -c -x 16 -s 16 -k 1M https://huggingface.co/spaces/wangfuyun/AnimateLCM/resolve/main/models/StableDiffusion/stable-diffusion-v1-5/vae/diffusion_pytorch_model.bin -d /content/AnimateLCM-hf/models/StableDiffusion/stable-diffusion-v1-5/vae -o diffusion_pytorch_model.bin'
-# ]
-
-# for command in commands:
-#     os.system(command)
-
 import json
 import torch
 import random
@@ -58,7 +44,7 @@ class AnimateController:
         self.savedir = os.path.join(
             self.basedir, "samples", datetime.now().strftime("Gradio-%Y-%m-%dT%H-%M-%S"))
         self.savedir_sample = os.path.join(self.savedir, "sample")
-        self.lcm_lora_path = "models/LCM_LoRA/sd15_t2v_beta_lora.safetensors"
+        self.lcm_lora_path = "/content/AnimateLCM-hf/models/LCM_LoRA/sd15_t2v_beta_lora.safetensors"
         os.makedirs(self.savedir, exist_ok=True)
 
         self.stable_diffusion_list = []
@@ -77,7 +63,7 @@ class AnimateController:
         self.pipeline = None
         self.lora_model_state_dict = {}
 
-        self.inference_config = OmegaConf.load("configs/inference.yaml")
+        self.inference_config = OmegaConf.load("/content/AnimateLCM-hf/configs/inference.yaml")
 
     def refresh_stable_diffusion(self):
         self.stable_diffusion_list = glob(
@@ -130,7 +116,7 @@ class AnimateController:
                 for key in f.keys():
                     self.lora_model_state_dict[key] = f.get_tensor(key)
 
-def inference(pipeline, prompt, negative_prompt, num_inference_steps, guidance_scale, width, height, video_length):
+def inference(pipeline, controller, prompt, negative_prompt, num_inference_steps, guidance_scale, width, height, video_length):
     torch.seed()
     seed = torch.initial_seed()
 
@@ -150,22 +136,22 @@ def inference(pipeline, prompt, negative_prompt, num_inference_steps, guidance_s
 
 class Predictor(BasePredictor):
     def setup(self) -> None:
-        controller = AnimateController()
-        controller.update_stable_diffusion("/content/AnimateLCM-hf/models/StableDiffusion/stable-diffusion-v1-5")
-        controller.update_motion_module("/content/AnimateLCM-hf/models/Motion_Module/sd15_t2v_beta_motion.ckpt")
-        controller.update_base_model("/content/AnimateLCM-hf/models/DreamBooth_LoRA/cartoon3d.safetensors")
-        # controller.update_lora_model("")
+        self.controller = AnimateController()
+        self.controller.update_stable_diffusion("/content/AnimateLCM-hf/models/StableDiffusion/stable-diffusion-v1-5")
+        self.controller.update_motion_module("/content/AnimateLCM-hf/models/Motion_Module/sd15_t2v_beta_motion.ckpt")
+        self.controller.update_base_model("/content/AnimateLCM-hf/models/DreamBooth_LoRA/cartoon3d.safetensors")
+        # self.controller.update_lora_model("")
 
         if is_xformers_available():
-            controller.unet.enable_xformers_memory_efficient_attention()
+            self.controller.unet.enable_xformers_memory_efficient_attention()
 
-        self.pipeline = AnimationPipeline(vae=controller.vae, text_encoder=controller.text_encoder, tokenizer=controller.tokenizer, unet=controller.unet,
-                    scheduler=scheduler_dict["LCM"](**OmegaConf.to_container(controller.inference_config.noise_scheduler_kwargs))).to("cuda")
+        self.pipeline = AnimationPipeline(vae=self.controller.vae, text_encoder=self.controller.text_encoder, tokenizer=self.controller.tokenizer, unet=self.controller.unet,
+                    scheduler=scheduler_dict["LCM"](**OmegaConf.to_container(self.controller.inference_config.noise_scheduler_kwargs))).to("cuda")
 
-        if controller.lora_model_state_dict != {}:
-            self.pipeline = convert_lora(self.pipeline, controller.lora_model_state_dict, alpha=lora_alpha_slider)
+        if self.controller.lora_model_state_dict != {}:
+            self.pipeline = convert_lora(self.pipeline, self.controller.lora_model_state_dict, alpha=lora_alpha_slider)
 
-        self.pipeline.unet = convert_lcm_lora(copy.deepcopy(controller.unet), controller.lcm_lora_path, 0.8)
+        self.pipeline.unet = convert_lcm_lora(copy.deepcopy(self.controller.unet), self.controller.lcm_lora_path, 0.8)
         self.pipeline.to("cuda")
     def predict(
         self,
@@ -177,5 +163,5 @@ class Predictor(BasePredictor):
         height: int = Input(default=512),
         video_length: int = Input(default=16),
     ) -> Path:
-        video_path = inference(self.pipeline, prompt, negative_prompt, num_inference_steps, guidance_scale, width, height, video_length)
+        video_path = inference(self.pipeline, self.controller, prompt, negative_prompt, num_inference_steps, guidance_scale, width, height, video_length)
         return Path(video_path)
