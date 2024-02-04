@@ -15,7 +15,7 @@ https://arxiv.org/abs/2402.00769
 https://animatelcm.github.io/
 
 ### 🖼 Output
-
+![image](https://github.com/camenduru/AnimateLCM-replicate/assets/54370274/c9b49590-88e9-46c8-ba36-2f1de82fe332)
 
 ### 🏢 Sponsor
 https://replicate.com
